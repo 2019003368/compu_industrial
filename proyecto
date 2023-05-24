@@ -1,0 +1,180 @@
+Option Compare Database
+
+Private Sub cmd_consultar_frm_usuarios_Click()
+
+Dim db As DAO.Database
+Dim rst As DAO.Recordset
+Dim strSQL As String
+
+Set db = CurrentDb
+strSQL = "SELECT * FROM usuarios WHERE id_usuario = " & Me.txt_id_usuario_frm_usuarios.Value
+
+Set rst = db.OpenRecordset(strSQL)
+
+If Not rst.EOF Then
+    Me.txt_id_usuario_frm_usuarios.Value = rst!id_usuario
+    Me.txt_user_frm_usuarios = rst!nombre_completo
+    Me.txt_nivel_acceso_frm_usuarios.Value = rst!nivel_acceso
+
+    Me.txt_password_frm_usuarios.Enabled = True
+
+    Me.Refresh
+Else
+    MsgBox "El usuario no existe", vbExclamation, "ADVERTENCIA"
+End If
+
+rst.Close
+Set rst = Nothing
+db.Close
+Set db = Nothing
+
+End Sub
+
+Private Sub cmd_iniciar_sesion_frm_usuarios_Click()
+
+If IsNull(Me.txt_id_usuario_frm_usuarios.Value) Or IsNull(Me.txt_user_frm_usuarios.Value) Or IsNull(Me.txt_password_frm_usuarios.Value) Then
+    MsgBox "Todos los campos deben de estar llenos", vbExclamation, "Error"
+    Exit Sub
+End If
+
+Dim db As DAO.Database
+Dim rst As DAO.Recordset
+Dim strSQL As String
+Dim nivelAcceso As String
+
+Set db = CurrentDb
+
+strSQL = "SELECT nivel_acceso FROM usuarios WHERE password = '" & Me.txt_password_frm_usuarios.Value & "'"
+
+Set rst = db.OpenRecordset(strSQL)
+
+If Not rst.EOF Then
+    nivelAcceso = rst!nivel_acceso
+    nivel_acceso_usuario = nivelAcceso
+    
+    MsgBox "Nivel de acceso del usuario: " & nivel_acceso_usuario
+
+    Select Case nivelAcceso
+        Case "administrador"
+            DoCmd.OpenForm "frm_menu_principal"
+            DoCmd.Close acForm, Me.Name
+            
+        Case "avanzado"
+            DoCmd.OpenForm "frm_menu_principal"
+            DoCmd.Close acForm, Me.Name
+            
+        Case "final"
+            DoCmd.OpenForm "frm_menu_principal"
+            DoCmd.Close acForm, Me.Name
+    End Select
+       
+Else
+    MsgBox "Contraseña incorrecta", vbCritical, "ADVERTENCIA"
+    
+End If
+
+rst.Close
+Set rst = Nothing
+db.Close
+Set db = Nothing
+
+End Sub
+
+
+
+Private Sub cmd_mostrar_password_frm_usuario_Click()
+
+
+    If Me.txt_password_frm_usuarios.InputMask = "Password" Then
+        Me.txt_password_frm_usuarios.InputMask = "" '
+    
+    Else
+        Me.txt_password_frm_usuarios.InputMask = "Password"
+    
+    End If
+
+
+
+End Sub
+
+Private Sub cmd_mostrar_password_frm_usuarios_Click()
+
+    If Me.txt_password_frm_usuarios.InputMask = "Password" Then
+        Me.txt_password_frm_usuarios.InputMask = ""
+        
+    Else
+        Me.txt_password_frm_usuarios.InputMask = "Password"
+    
+    End If
+
+
+End Sub
+
+Private Sub cmd_regsitro_usuarios_frm_usuarios_Click()
+
+DoCmd.OpenForm "frm_registro_usuario"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_salir_frm_usuarios_Click()
+
+DoCmd.Quit
+
+End Sub
+
+Private Sub cmd_vaciar_campos_frm_usuarios_Click()
+
+Me.txt_id_usuario_frm_usuarios.Value = ""
+Me.txt_user_frm_usuarios.Value = ""
+Me.txt_password_frm_usuarios.Value = ""
+Me.txt_nivel_acceso_frm_usuarios.Value = ""
+Me.txt_password_frm_usuarios.Enabled = False
+
+End Sub
+
+Private Sub Form_Load()
+
+Me.txt_user_frm_usuarios.Enabled = False
+Me.txt_password_frm_usuarios.Enabled = False
+Me.txt_nivel_acceso_frm_usuarios.Enabled = False
+
+Me.txt_id_usuario_frm_usuarios.Value = Null
+Me.txt_user_frm_usuarios.Value = Null
+Me.txt_password_frm_usuarios.Value = Null
+
+Me.Refresh
+
+End Sub
+
+Private Sub txt_id_usuario_frm_usuarios_KeyPress(KeyAscii As Integer)
+
+If Not IsNumeric(Chr(KeyAscii)) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir números en este campo", vbExclamation, "Gestión de usuarios"
+End If
+
+End Sub
+
+Private Sub txt_nivel_acceso_frm_usuarios_KeyPress(KeyAscii As Integer)
+
+KeyAscii = 0
+
+End Sub
+
+Private Sub txt_password_frm_usuarios_Click()
+
+Me.txt_password_frm_usuarios.InputMask = "Password"
+
+
+End Sub
+
+
+Private Sub txt_user_frm_usuarios_KeyPress(KeyAscii As Integer)
+
+If Not (KeyAscii >= Asc("A") And KeyAscii <= Asc("Z")) And Not (KeyAscii >= Asc("a") And KeyAscii <= Asc("z")) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir letras en este campo", vbExclamation, "Ingreso de usuarios"
+End If
+
+End Sub
