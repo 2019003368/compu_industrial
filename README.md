@@ -1,0 +1,7 @@
+# compu_industrial
+Codigo VBA Proyecto Computación Industrial
+Integrantes:
+	HORACIO CAÑIPA HERNÁNDEZ
+	SEBASTIÁN ANTONIO MATA GÓMEZ
+	CAROLINA SOLÍS ATENCIO
+	NICOLE DANIELA VARGAS MONGE
