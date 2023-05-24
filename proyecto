@@ -256,3 +256,2052 @@ End Select
     
 End Sub
 
+Option Compare Database
+Dim rst As DAO.Recordset
+Dim db As DAO.Database
+
+Private Sub cmd_anterior_registro_frm_registro_proveedores_Click()
+
+On Error GoTo manejo_errores
+
+    If Not rst.BOF Then
+        rst.MovePrevious
+        
+        If Not rst.BOF Then
+            Me.txt_proveedor_frm_registro_proveedores.Value = rst!nombre_proveedor
+            Me.txt_direccion_frm_registro_proveedores.Value = rst!direccion
+            Me.txt_telefono_frm_registro_proveedores.Value = rst!telefono
+            Me.txt_correo_frm_registro_proveedores.Value = rst!correo
+            Me.txt_id_proveedor_frm_registro_proveedores.Value = rst!id_proveedor
+                
+        Else
+        rst.MoveFirst
+        MsgBox "Este es el primer registro", vbInformation, "Registro de proveedores"
+        
+        End If
+        
+    End If
+    
+    Exit Sub
+
+manejo_errores:
+
+    MsgBox "Se ha producido un error, presione el boton de ir al primer o último registro para solucionarlo", vbCritical, "MANEJO DE ERRORES"
+    
+    Exit Sub
+
+End Sub
+
+Private Sub cmd_editar_frm_registro_proveedores_Click()
+
+Set db = CurrentDb
+
+Set rst = db.OpenRecordset("SELECT * FROM proveedores WHERE id_proveedor = " & Me.txt_id_proveedor_frm_registro_proveedores.Value, dbOpenDynaset)
+
+If Not rst.EOF Then
+
+    rst.Edit
+    
+    rst!id_proveedor = Me.txt_id_proveedor_frm_registro_proveedores.Value
+    rst!nombre_proveedor = Me.txt_proveedor_frm_registro_proveedores.Value
+    rst!direccion = Me.txt_direccion_frm_registro_proveedores.Value
+    rst!telefono = Me.txt_telefono_frm_registro_proveedores.Value
+    rst!correo = Me.txt_correo_frm_registro_proveedores.Value
+    
+    rst.Update
+
+    MsgBox "El producto se edito de forma correcta", vbInformation, "Registro de proveedores"
+
+    rst.Close
+    Set rst = Nothing
+Else
+    MsgBox "No se encontró el usuario con el ID especificado.", vbExclamation, "Error al editar"
+End If
+
+Exit Sub
+
+End Sub
+
+Private Sub cmd_eliminar_frm_registro_proveedores_Click()
+
+Dim secuencia_SQL As String
+
+Set db = CurrentDb
+
+secuencia_SQL = "SELECT * FROM proveedores WHERE id_proveedor = " & Me.txt_id_proveedor_frm_registro_proveedores
+
+Set rst = db.OpenRecordset(secuencia_SQL, dbOpenDynaset)
+
+If rst.EOF = False Then
+
+    If MsgBox("¿Desea eliminar permanentemente el usuario?", vbCritical + vbYesNo, "Registro de proveedores") = vbYes Then
+    
+        rst.Delete
+        
+    End If
+
+    Me.txt_proveedor_frm_registro_proveedores.Value = Null
+    Me.txt_direccion_frm_registro_proveedores.Value = Null
+    Me.txt_telefono_frm_registro_proveedores.Value = Null
+    Me.txt_correo_frm_registro_proveedores.Value = Null
+    Me.txt_id_proveedor_frm_registro_proveedores = Null
+    
+End If
+
+rst.Close
+
+Set rst = Nothing
+
+End Sub
+
+
+Private Sub cmd_guardar_frm_registro_proveedores_Click()
+
+On Error GoTo manejo_errores
+
+If IsNull(Me.txt_correo_frm_registro_proveedores.Value) Or IsNull(Me.txt_direccion_frm_registro_proveedores.Value) Or IsNull(Me.txt_telefono_frm_registro_proveedores.Value) Or IsNull(Me.txt_proveedor_frm_registro_proveedores.Value) Then
+    
+manejo_errores:
+    
+    MsgBox "Se deben de completar todos los campos", vbExclamation, "Registro de proveedores"
+    
+    Exit Sub
+    
+End If
+
+Dim db As DAO.Database
+Dim rst As DAO.Recordset
+Dim rstId As DAO.Recordset
+Dim strSQL As String
+Dim siguiente_id As Long
+
+Set db = CurrentDb
+
+strSQL = "SELECT MAX(id_producto) AS maxId FROM productos"
+
+Set rstId = db.OpenRecordset(strSQL)
+
+If Not rstId.EOF Then
+    siguiente_id = Nz(rstId!maxId, 0) + 1
+
+End If
+
+rstId.Close
+
+Set rst = db.OpenRecordset("proveedores", dbOpenDynaset)
+
+    rst.AddNew
+    
+    rst!id_proveedor = siguiente_id
+    rst!nombre_proveedor = Me.txt_proveedor_frm_registro_proveedores.Value
+    rst!direccion = Me.txt_direccion_frm_registro_proveedores.Value
+    rst!telefono = Me.txt_telefono_frm_registro_proveedores.Value
+    rst!correo = Me.txt_correo_frm_registro_proveedores.Value
+    
+    rst.Update
+
+MsgBox "El proveedor se guardó con éxito", vbInformation, "Registro de proveedores"
+
+rst.Close
+Set rst = Nothing
+db.Close
+
+End Sub
+
+Private Sub cmd_menu_frm_registro_proveedores_Click()
+
+DoCmd.OpenForm "frm_menu_principal"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_nuevo_registro_frm_registro_proveedores_Click()
+
+Me.txt_proveedor_frm_registro_proveedores.Value = ""
+Me.txt_direccion_frm_registro_proveedores.Value = ""
+Me.txt_telefono_frm_registro_proveedores.Value = ""
+Me.txt_correo_frm_registro_proveedores.Value = ""
+Me.txt_id_proveedor_frm_registro_proveedores = ""
+
+End Sub
+
+Private Sub cmd_primer_registro_frm_registro_proveedores_Click()
+
+Set db = CurrentDb
+
+Set rst = db.OpenRecordset("proveedores", dbOpenDynaset)
+
+rst.MoveFirst
+        Me.txt_proveedor_frm_registro_proveedores.Value = rst!nombre_proveedor
+        Me.txt_direccion_frm_registro_proveedores.Value = rst!direccion
+        Me.txt_telefono_frm_registro_proveedores.Value = rst!telefono
+        Me.txt_correo_frm_registro_proveedores.Value = rst!correo
+        Me.txt_id_proveedor_frm_registro_proveedores = rst!id_proveedor
+
+End Sub
+
+Private Sub cmd_siguiente_registro_frm_registro_proveedores_Click()
+
+On Error GoTo manejo_errores
+
+    If Not rst.EOF Then
+        rst.MoveNext
+        
+        If Not rst.EOF Then
+            Me.txt_proveedor_frm_registro_proveedores.Value = rst!nombre_proveedor
+            Me.txt_direccion_frm_registro_proveedores.Value = rst!direccion
+            Me.txt_telefono_frm_registro_proveedores.Value = rst!telefono
+            Me.txt_correo_frm_registro_proveedores.Value = rst!correo
+            Me.txt_id_proveedor_frm_registro_proveedores.Value = rst!id_proveedor
+
+        Else
+            rst.MoveLast
+            MsgBox "Este es el último registro", vbInformation, "Registro de proveedores"
+        End If
+
+    End If
+
+    Exit Sub
+
+manejo_errores:
+    MsgBox "Se ha producido un error, presione el boton de ir al primer o último registro para solucionarlo", vbCritical, "MANEJO DE ERRORES"
+    
+    Exit Sub
+
+End Sub
+
+Private Sub cmd_ultimo_registro_frm_registro_proveedores_Click()
+
+Set db = CurrentDb
+
+Set rst = db.OpenRecordset("proveedores", dbOpenDynaset)
+
+rst.MoveLast
+
+        Me.txt_proveedor_frm_registro_proveedores.Value = rst!nombre_proveedor
+        Me.txt_direccion_frm_registro_proveedores.Value = rst!direccion
+        Me.txt_telefono_frm_registro_proveedores.Value = rst!telefono
+        Me.txt_correo_frm_registro_proveedores.Value = rst!correo
+        Me.txt_id_proveedor_frm_registro_proveedores.Value = rst!id_proveedor
+        
+End Sub
+
+Private Sub Form_Load()
+
+Set rst = CurrentDb.OpenRecordset("proveedores", dbOpenDynaset)
+
+Me.txt_id_proveedor_frm_registro_proveedores.Visible = False
+
+rst.MoveFirst
+
+    Me.txt_proveedor_frm_registro_proveedores.Value = rst!nombre_proveedor
+    Me.txt_direccion_frm_registro_proveedores.Value = rst!direccion
+    Me.txt_telefono_frm_registro_proveedores.Value = rst!telefono
+    Me.txt_correo_frm_registro_proveedores.Value = rst!correo
+    Me.txt_id_proveedor_frm_registro_proveedores = rst!id_proveedor
+
+Me.Refresh
+
+End Sub
+
+
+Private Sub txt_proveedor_frm_registro_proveedores_KeyPress(KeyAscii As Integer)
+
+If Not (KeyAscii >= Asc("A") And KeyAscii <= Asc("Z")) And Not (KeyAscii >= Asc("a") And KeyAscii <= Asc("z")) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir letras en este campo", vbExclamation, "Ingreso de usuarios"
+End If
+
+End Sub
+
+Private Sub txt_telefono_frm_registro_proveedores_KeyPress(KeyAscii As Integer)
+
+If Not IsNumeric(Chr(KeyAscii)) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir números en este campo", vbExclamation, "Gestión de usuarios"
+End If
+
+End Sub
+
+Option Compare Database
+Dim rst As DAO.Recordset
+Dim db As DAO.Database
+
+Private Sub cmb_proveedor_frm_registro_producto_KeyPress(KeyAscii As Integer)
+
+KeyAscii = 0
+
+End Sub
+
+Private Sub cmb_ubicacion_frm_registro_producto_KeyPress(KeyAscii As Integer)
+
+KeyAscii = 0
+
+End Sub
+
+Private Sub cmd__anterior_frm_registro_producto_Click()
+
+On Error GoTo manejo_errores
+
+    If Not rst.BOF Then
+        rst.MovePrevious
+        
+        If Not rst.BOF Then
+            Me.cmb_proveedor_frm_registro_producto.Value = rst!id_proveedor
+            Me.txt_producto_frm_registro_producto.Value = rst!nombre_producto
+            Me.txt_cantidad_frm_registro_producto.Value = rst!cantidad_disponible
+            Me.txt_precio_compra_frm_registro_producto.Value = rst!precio_compra
+            Me.txt_precio_venta_frm_registro_producto.Value = rst!precio_venta
+            Me.cmb_ubicacion_frm_registro_producto.Value = rst!ubicacion
+            Me.txt_id_producto_frm_registro_producto.Value = rst!id_producto
+            
+        Else
+        rst.MoveFirst
+        MsgBox "Este es el primer registro", vbInformation, "Registro de productos"
+        End If
+        
+    End If
+    
+    Exit Sub
+
+manejo_errores:
+
+    MsgBox "Se ha producido un error, presione el boton de ir al primer o último registro para solucionarlo", vbCritical, "MANEJO DE ERRORES"
+    
+    Exit Sub
+    
+End Sub
+
+Private Sub cmd__primero_frm_registro_producto_Click()
+
+Set db = CurrentDb
+
+Set rst = db.OpenRecordset("productos", dbOpenDynaset)
+
+rst.MoveFirst
+        Me.cmb_proveedor_frm_registro_producto.Value = rst!id_proveedor
+        Me.txt_producto_frm_registro_producto.Value = rst!nombre_producto
+        Me.txt_cantidad_frm_registro_producto.Value = rst!cantidad_disponible
+        Me.txt_precio_compra_frm_registro_producto.Value = rst!precio_compra
+        Me.txt_precio_venta_frm_registro_producto.Value = rst!precio_venta
+        Me.cmb_ubicacion_frm_registro_producto.Value = rst!ubicacion
+        Me.txt_id_producto_frm_registro_producto.Value = rst!id_producto
+
+End Sub
+
+Private Sub cmd__siguiente_frm_registro_producto_Click()
+
+On Error GoTo manejo_errores
+
+    If Not rst.EOF Then
+        rst.MoveNext
+        
+        If Not rst.EOF Then
+            Me.cmb_proveedor_frm_registro_producto.Value = rst!id_proveedor
+            Me.txt_producto_frm_registro_producto.Value = rst!nombre_producto
+            Me.txt_cantidad_frm_registro_producto.Value = rst!cantidad_disponible
+            Me.txt_precio_compra_frm_registro_producto.Value = rst!precio_compra
+            Me.txt_precio_venta_frm_registro_producto.Value = rst!precio_venta
+            Me.cmb_ubicacion_frm_registro_producto.Value = rst!ubicacion
+            Me.txt_id_producto_frm_registro_producto.Value = rst!id_producto
+        
+        Else
+            rst.MoveLast
+            MsgBox "Este es el último registro", vbInformation, "Registro de productos"
+        End If
+
+    End If
+
+    Exit Sub
+
+manejo_errores:
+    MsgBox "Se ha producido un error, presione el boton de ir al primer o último registro para solucionarlo", vbCritical, "MANEJO DE ERRORES"
+    
+    Exit Sub
+
+End Sub
+
+Private Sub cmd_editar_frm_registro_producto_Click()
+
+Set db = CurrentDb
+
+Set rst = db.OpenRecordset("SELECT * FROM productos WHERE id_producto = " & Me.txt_id_producto_frm_registro_producto.Value, dbOpenDynaset)
+
+If Not rst.EOF Then
+
+    rst.Edit
+    
+    rst!id_proveedor = Me.cmb_proveedor_frm_registro_producto.Value
+    rst!id_producto = Me.txt_id_producto_frm_registro_producto.Value
+    rst!nombre_producto = Me.txt_producto_frm_registro_producto.Value
+    rst!cantidad_disponible = Me.txt_cantidad_frm_registro_producto.Value
+    rst!precio_compra = Me.txt_precio_compra_frm_registro_producto.Value
+    rst!precio_venta = Me.txt_precio_venta_frm_registro_producto.Value
+    rst!ubicacion = Me.cmb_ubicacion_frm_registro_producto.Value
+    
+    rst.Update
+
+    MsgBox "El producto se edito de forma correcta", vbInformation, "Registro de productos"
+
+    rst.Close
+    Set rst = Nothing
+Else
+    MsgBox "No se encontró el usuario con el ID especificado.", vbExclamation, "Error al editar"
+End If
+
+Exit Sub
+
+End Sub
+
+Private Sub cmd_eliminar_frm_registro_producto_Click()
+
+Dim secuencia_SQL As String
+
+Set db = CurrentDb
+
+secuencia_SQL = "SELECT * FROM productos WHERE id_producto = " & Me.txt_id_producto_frm_registro_producto
+
+Set rst = db.OpenRecordset(secuencia_SQL, dbOpenDynaset)
+
+If rst.EOF = False Then
+
+    If MsgBox("¿Desea eliminar permanentemente el usuario?", vbCritical + vbYesNo, "Registro de productos") = vbYes Then
+    
+        rst.Delete
+        
+    End If
+
+    Me.cmb_proveedor_frm_registro_producto.Value = Null
+    Me.txt_producto_frm_registro_producto.Value = Null
+    Me.txt_cantidad_frm_registro_producto.Value = Null
+    Me.txt_precio_compra_frm_registro_producto.Value = Null
+    Me.txt_precio_venta_frm_registro_producto.Value = Null
+    Me.cmb_ubicacion_frm_registro_producto.Value = Null
+    Me.txt_id_producto_frm_registro_producto.Value = Null
+    
+End If
+
+rst.Close
+
+Set rst = Nothing
+
+End Sub
+
+Private Sub cmd_inicio_frm_registro_producto_Click()
+
+DoCmd.OpenForm "frm_menu_principal"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_guardar_frm_registro_producto_Click()
+
+On Error GoTo manejo_errores
+
+If IsNull(Me.txt_cantidad_frm_registro_producto.Value) Or IsNull(Me.txt_precio_compra_frm_registro_producto.Value) Or IsNull(Me.txt_precio_venta_frm_registro_producto.Value) Or IsNull(Me.txt_producto_frm_registro_producto.Value) Or IsNull(Me.cmb_proveedor_frm_registro_producto.Value) Or IsNull(Me.cmb_ubicacion_frm_registro_producto.Value) Then
+    
+manejo_errores:
+    
+    MsgBox "Se deben de completar todos los campos", vbExclamation, "Registro de producto"
+    
+    Exit Sub
+    
+End If
+
+Dim db As DAO.Database
+Dim rst As DAO.Recordset
+Dim rstId As DAO.Recordset
+Dim strSQL As String
+Dim siguiente_id As Long
+
+Set db = CurrentDb
+
+strSQL = "SELECT MAX(id_producto) AS maxId FROM productos"
+
+Set rstId = db.OpenRecordset(strSQL)
+
+If Not rstId.EOF Then
+    siguiente_id = Nz(rstId!maxId, 0) + 1
+
+End If
+
+rstId.Close
+
+Set rst = db.OpenRecordset("productos", dbOpenDynaset)
+
+    rst.AddNew
+    rst!id_proveedor = Me.cmb_proveedor_frm_registro_producto.Value
+    rst!id_producto = siguiente_id
+    rst!nombre_producto = Me.txt_producto_frm_registro_producto.Value
+    rst!cantidad_disponible = Me.txt_cantidad_frm_registro_producto.Value
+    rst!precio_compra = Me.txt_precio_compra_frm_registro_producto.Value
+    rst!precio_venta = Me.txt_precio_venta_frm_registro_producto.Value
+    rst!ubicacion = Me.cmb_ubicacion_frm_registro_producto.Value
+    rst.Update
+
+MsgBox "El producto se registro con éxito", vbInformation, "Registro de productos"
+
+rst.Close
+Set rst = Nothing
+db.Close
+Set db = Nothing
+
+End Sub
+
+Private Sub cmd_nuevo_producto_frm_registro_producto_Click()
+
+Me.cmb_proveedor_frm_registro_producto.Value = ""
+Me.txt_producto_frm_registro_producto.Value = ""
+Me.txt_cantidad_frm_registro_producto.Value = ""
+Me.txt_precio_compra_frm_registro_producto.Value = ""
+Me.txt_precio_venta_frm_registro_producto.Value = ""
+Me.cmb_ubicacion_frm_registro_producto.Value = ""
+Me.txt_id_producto_frm_registro_producto.Value = ""
+
+End Sub
+
+Private Sub cmd_ultimo_frm_registro_producto_Click()
+
+Set db = CurrentDb
+
+Set rst = db.OpenRecordset("productos", dbOpenDynaset)
+
+rst.MoveLast
+
+    Me.cmb_proveedor_frm_registro_producto.Value = rst!id_proveedor
+    Me.txt_producto_frm_registro_producto.Value = rst!nombre_producto
+    Me.txt_cantidad_frm_registro_producto.Value = rst!cantidad_disponible
+    Me.txt_precio_compra_frm_registro_producto.Value = rst!precio_compra
+    Me.txt_precio_venta_frm_registro_producto.Value = rst!precio_venta
+    Me.cmb_ubicacion_frm_registro_producto.Value = rst!ubicacion
+    Me.txt_id_producto_frm_registro_producto.Value = rst!id_producto
+
+End Sub
+
+Private Sub Form_Load()
+
+Set rst = CurrentDb.OpenRecordset("productos", dbOpenDynaset)
+
+Me.txt_id_producto_frm_registro_producto.Visible = False
+
+rst.MoveFirst
+
+    Me.cmb_proveedor_frm_registro_producto.Value = rst!id_proveedor
+    Me.txt_producto_frm_registro_producto.Value = rst!nombre_producto
+    Me.txt_cantidad_frm_registro_producto.Value = rst!cantidad_disponible
+    Me.txt_precio_compra_frm_registro_producto.Value = rst!precio_compra
+    Me.txt_precio_venta_frm_registro_producto.Value = rst!precio_venta
+    Me.cmb_ubicacion_frm_registro_producto.Value = rst!ubicacion
+    Me.txt_id_producto_frm_registro_producto.Value = rst!id_producto
+
+Me.Refresh
+
+End Sub
+
+Private Sub txt_cantidad_frm_registro_producto_KeyPress(KeyAscii As Integer)
+
+If Not IsNumeric(Chr(KeyAscii)) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir números en este campo", vbExclamation, "Gestión de usuarios"
+End If
+
+End Sub
+
+Private Sub txt_precio_compra_frm_registro_producto_KeyPress(KeyAscii As Integer)
+
+If Not IsNumeric(Chr(KeyAscii)) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir números en este campo", vbExclamation, "Gestión de usuarios"
+End If
+
+End Sub
+
+Private Sub txt_precio_venta_frm_registro_producto_KeyPress(KeyAscii As Integer)
+
+If Not IsNumeric(Chr(KeyAscii)) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir números en este campo", vbExclamation, "Gestión de usuarios"
+End If
+
+End Sub
+
+Private Sub txt_producto_frm_registro_producto_KeyPress(KeyAscii As Integer)
+
+If Not (KeyAscii >= Asc("A") And KeyAscii <= Asc("Z")) And Not (KeyAscii >= Asc("a") And KeyAscii <= Asc("z")) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir letras en este campo", vbExclamation, "Ingreso de usuarios"
+End If
+
+End Sub
+
+Option Compare Database
+Dim rst As DAO.Recordset
+Dim db As DAO.Database
+
+Private Sub cmb_nivel_acceso_frm_registro_usuarios_KeyPress(KeyAscii As Integer)
+
+KeyAscii = 0
+
+End Sub
+
+Private Sub cmd__primero_frm_gestion_user_Click()
+
+Set db = CurrentDb
+
+Set rst = db.OpenRecordset("usuarios", dbOpenDynaset)
+
+rst.MoveFirst
+        Me.txt_id_usuario_frm_registro_usuarios = rst!id_usuario
+        Me.txt_nombre_completo_frm_registro_usuarios = rst!nombre_completo
+        Me.txt_password_frm_registro_usuarios = rst!password
+        Me.cmb_nivel_acceso_frm_registro_usuarios = rst!nivel_acceso
+        
+End Sub
+
+Private Sub cmd_anterior_frm_gestion_user_Click()
+
+On Error GoTo manejo_errores
+
+    If Not rst.BOF Then
+        rst.MovePrevious
+        If Not rst.BOF Then
+            Me.txt_id_usuario_frm_registro_usuarios = rst!id_usuario
+            Me.txt_nombre_completo_frm_registro_usuarios = rst!nombre_completo
+            Me.txt_password_frm_registro_usuarios = rst!password
+            Me.cmb_nivel_acceso_frm_registro_usuarios = rst!nivel_acceso
+            
+        Else
+        rst.MoveFirst
+        MsgBox "Este es el primer registro", vbInformation, "Gestión de usuarios"
+        End If
+        
+    End If
+    
+    Exit Sub
+
+manejo_errores:
+
+    MsgBox "Se ha producido un error, presione el boton de ir al primer o último registro para solucionarlo", vbCritical, "MANEJO DE ERRORES"
+    
+    Exit Sub
+
+End Sub
+
+Private Sub cmd_crear_usuario_frm_registro_usuarios_Click()
+
+Dim password As String
+
+On Error GoTo manejo_errores
+
+If IsNull(Me.txt_id_usuario_frm_registro_usuarios.Value) Or IsNull(Me.txt_nombre_completo_frm_registro_usuarios.Value) Or IsNull(Me.txt_password_frm_registro_usuarios.Value) Or IsNull(Me.cmb_nivel_acceso_frm_registro_usuarios.Value) Then
+    
+manejo_errores:
+    
+    MsgBox "Se deben de completar todos los campos", vbExclamation, "Registro de usuario"
+    
+    Exit Sub
+End If
+
+password = Me.txt_password_frm_registro_usuarios.Value
+
+If Len(password) < 8 Or Len(password) > 12 Then
+
+    MsgBox "La contraseña debe tener entre 8 y 12 caracteres", vbExclamation, "Registro de usuario"
+    
+    Exit Sub
+    
+End If
+
+If Not ContieneNumerosLetrasCaracteresEspeciales(password) Then
+
+    MsgBox "La contraseña debe contener al menos una letra, un número y un carácter especial", vbExclamation, "Registro de usuario"
+    
+    Exit Sub
+    
+End If
+
+Dim db As DAO.Database
+Dim rst As DAO.Recordset
+
+Set db = CurrentDb
+Set rst = db.OpenRecordset("usuarios", dbOpenDynaset)
+
+    rst.AddNew
+    rst!id_usuario = Me.txt_id_usuario_frm_registro_usuarios.Value
+    rst!nombre_completo = UCase(Me.txt_nombre_completo_frm_registro_usuarios.Value)
+    rst!password = Me.txt_password_frm_registro_usuarios.Value
+    rst!nivel_acceso = Me.cmb_nivel_acceso_frm_registro_usuarios.Value
+    rst.Update
+    
+MsgBox "El usuario ha sido agregado con exito", vbInformation, "Registro de usuarios"
+
+rst.Close
+Set rst = Nothing
+db.Close
+Set db = Nothing
+
+End Sub
+Function ContieneNumerosLetrasCaracteresEspeciales(cadena As String) As Boolean
+
+Dim tieneNumeros As Boolean
+Dim tieneLetras As Boolean
+Dim tieneCaracteresEspeciales As Boolean
+Dim i As Integer
+
+tieneNumeros = False
+tieneLetras = False
+tieneCaracteresEspeciales = False
+
+For i = 1 To Len(cadena)
+
+    If IsNumeric(Mid(cadena, i, 1)) Then
+        tieneNumeros = True
+    ElseIf IsLetter(Mid(cadena, i, 1)) Then
+        tieneLetras = True
+    Else
+        tieneCaracteresEspeciales = True
+    End If
+
+    If tieneNumeros And tieneLetras And tieneCaracteresEspeciales Then
+        Exit For
+    
+    End If
+    
+Next i
+
+
+ContieneNumerosLetrasCaracteresEspeciales = tieneNumeros And tieneLetras And tieneCaracteresEspeciales
+
+End Function
+Function IsLetter(c As String) As Boolean
+
+IsLetter = LCase(c) Like "[a-z]"
+
+End Function
+
+Private Sub cmd_editar_frm_gestion_user_Click()
+
+Dim password As String
+
+password = Me.txt_password_frm_registro_usuarios.Value
+
+If Len(password) < 8 Or Len(password) > 12 Then
+    MsgBox "La contraseña debe tener entre 8 y 12 caracteres", vbExclamation, "Gestión de usuarios"
+    Exit Sub
+End If
+
+If Not ContieneNumerosLetrasCaracteresEspeciales(password) Then
+    MsgBox "La contraseña debe contener al menos una letra, un número y un carácter especial", vbExclamation, "Gestión de usuarios"
+    Exit Sub
+End If
+
+Set db = CurrentDb
+
+Set rst = db.OpenRecordset("SELECT * FROM usuarios WHERE id_usuario = " & Me.txt_id_usuario_frm_registro_usuarios, dbOpenDynaset)
+
+If Not rst.EOF Then
+    rst.Edit
+    rst!id_usuario = Me.txt_id_usuario_frm_registro_usuarios.Value
+    rst!nombre_completo = Me.txt_nombre_completo_frm_registro_usuarios.Value
+    rst!password = Me.txt_password_frm_registro_usuarios.Value
+    rst!nivel_acceso = Me.cmb_nivel_acceso_frm_registro_usuarios.Value
+    rst.Update
+
+    MsgBox "El usuario se editó correctamente", vbInformation, "Gestión de usuarios"
+
+    rst.Close
+    Set rst = Nothing
+Else
+    MsgBox "No se encontró el usuario con el ID especificado.", vbExclamation, "Error al editar"
+End If
+
+Exit Sub
+
+End Sub
+
+Private Sub cmd_eliminar_frm_gestion_user_Click()
+
+Set db = CurrentDb
+
+Set rst = db.OpenRecordset("SELECT * FROM usuarios WHERE id_usuario = " & Me.txt_id_usuario_frm_registro_usuarios, dbOpenDynaset)
+
+If rst.EOF = False Then
+
+    If MsgBox("¿Desea eliminar permanentemente el usuario?", vbCritical + vbYesNo, "Gestión de usuarios") = vbYes Then
+    
+        rst.Delete
+        
+    End If
+    
+        Me.txt_id_usuario_frm_registro_usuarios = Null
+        Me.txt_nombre_completo_frm_registro_usuarios = Null
+        Me.txt_password_frm_registro_usuarios = Null
+        Me.cmb_nivel_acceso_frm_registro_usuarios = Null
+    
+End If
+
+rst.Close
+
+Set rst = Nothing
+
+End Sub
+
+Private Sub cmd_inicio_frm_registro_usuarios_Click()
+
+DoCmd.OpenForm "frm_menu_principal"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_nuevo_usuario_frm_registro_usuarios_Click()
+
+Me.txt_id_usuario_frm_registro_usuarios.Value = ""
+Me.txt_nombre_completo_frm_registro_usuarios = ""
+Me.txt_password_frm_registro_usuarios = ""
+Me.cmb_nivel_acceso_frm_registro_usuarios = ""
+
+End Sub
+
+Private Sub cmd_siguiente_frm_gestion_user_Click()
+
+On Error GoTo manejo_errores
+
+    If Not rst.EOF Then
+        rst.MoveNext
+        
+        If Not rst.EOF Then
+            Me.txt_id_usuario_frm_registro_usuarios = rst!id_usuario
+            Me.txt_nombre_completo_frm_registro_usuarios = rst!nombre_completo
+            Me.txt_password_frm_registro_usuarios = rst!password
+            Me.cmb_nivel_acceso_frm_registro_usuarios = rst!nivel_acceso
+        
+        Else
+            rst.MoveLast
+            MsgBox "Este es el último registro", vbInformation, "Gestión de usuarios"
+        End If
+
+    End If
+
+    Exit Sub
+
+manejo_errores:
+    MsgBox "Se ha producido un error, presione el boton de ir al primer o último registro para solucionarlo", vbCritical, "MANEJO DE ERRORES"
+    
+    Exit Sub
+    
+End Sub
+
+Private Sub cmd_ultimo_frm_gestion_user_Click()
+
+Set db = CurrentDb
+
+Set rst = db.OpenRecordset("usuarios", dbOpenDynaset)
+
+rst.MoveLast
+        Me.txt_id_usuario_frm_registro_usuarios = rst!id_usuario
+        Me.txt_nombre_completo_frm_registro_usuarios = rst!nombre_completo
+        Me.txt_password_frm_registro_usuarios = rst!password
+        Me.cmb_nivel_acceso_frm_registro_usuarios = rst!nivel_acceso
+
+End Sub
+
+Private Sub Comando21_Click()
+
+End Sub
+
+
+Private Sub Form_Load()
+
+Set rst = CurrentDb.OpenRecordset("usuarios", dbOpenDynaset)
+
+rst.MoveFirst
+
+    Me.txt_id_usuario_frm_registro_usuarios = rst!id_usuario
+    Me.txt_nombre_completo_frm_registro_usuarios = rst!nombre_completo
+    Me.txt_password_frm_registro_usuarios = rst!password
+    Me.cmb_nivel_acceso_frm_registro_usuarios = rst!nivel_acceso
+
+Me.Refresh
+
+End Sub
+
+Private Sub txt_id_usuario_frm_registro_usuarios_KeyPress(KeyAscii As Integer)
+
+If Not IsNumeric(Chr(KeyAscii)) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir números en este campo", vbExclamation, "registro de usuario"
+End If
+
+End Sub
+
+Private Sub txt_nombre_completo_frm_registro_usuarios_KeyPress(KeyAscii As Integer)
+
+If Not (KeyAscii >= 65 And KeyAscii <= 90) And Not (KeyAscii >= 97 And KeyAscii <= 122) And Not (KeyAscii = 32 Or KeyAscii = 8 Or KeyAscii = 209 Or KeyAscii = 241 Or KeyAscii = 225 Or KeyAscii = 233 Or KeyAscii = 237 Or KeyAscii = 243 Or KeyAscii = 250 Or KeyAscii = 252 Or KeyAscii = 193 Or KeyAscii = 201 Or KeyAscii = 205 Or KeyAscii = 211 Or KeyAscii = 218 Or KeyAscii = 220) Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir letras en este campo", vbExclamation, "registro de usuario"
+End If
+
+End Sub
+
+Option Compare Database
+
+Private Sub cmd_grafico_cant_prod_ubic_frm_gestion_inv_Click()
+
+    DoCmd.Close acForm, Me.Name
+    DoCmd.OpenReport "grf_producto_ubicacion", acViewReport
+
+End Sub
+
+Private Sub cmd_grafico_demanda_mes_frm_gestion_inv_Click()
+
+    DoCmd.Close acForm, Me.Name
+    DoCmd.OpenReport "grf_demanda_mes", acViewReport
+
+End Sub
+
+Private Sub cmd_informe_prod_ubic_frm_gestion_inv_Click()
+
+    DoCmd.Close acForm, Me.Name
+    DoCmd.OpenReport "rpt_producto_ubicacion", acViewReport
+
+End Sub
+
+Private Sub cmd_informe_trans_inv_frm_gestion_inv_Click()
+
+    DoCmd.Close acForm, Me.Name
+    DoCmd.OpenReport "rpt_transacciones_producto", acViewReport
+
+End Sub
+
+Private Sub cmd_informe_valor_inv_frm_gestion_inv_Click()
+
+    DoCmd.Close acForm, Me.Name
+    DoCmd.OpenReport "rpt_valor_inventario", acViewReport
+
+End Sub
+
+Private Sub cmd_informe_var_inv_frm_gestion_inv_Click()
+
+    DoCmd.Close acForm, Me.Name
+    DoCmd.OpenReport "rpt_variacion_inventario", acViewReport
+
+End Sub
+
+Private Sub cmd_inicio_frm_gestion_inv_Click()
+
+    DoCmd.OpenForm "frm_menu_principal"
+    DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_transacciones_frm_gestion_inv_Click()
+
+    DoCmd.OpenForm "frm_transacciones_inv"
+    DoCmd.Close acForm, Me.Name
+
+
+End Sub
+
+Private Sub Form_Load()
+
+Select Case nivel_acceso_usuario
+
+    Case "administrador":
+        Me.cmd_transacciones_frm_gestion_inv.Enabled = True
+
+    Case "avanzado":
+        Me.cmd_transacciones_frm_gestion_inv.Enabled = True
+        
+    Case "final":
+        Me.cmd_transacciones_frm_gestion_inv.Enabled = False
+
+End Select
+        
+End Sub
+
+Option Compare Database
+
+Private Sub cmd_grafico_cant_prod_ubic_frm_gestion_inv_Click()
+
+DoCmd.Close acForm, Me.Name
+DoCmd.OpenReport "grf_producto_ubicacion", acViewReport
+
+End Sub
+
+Private Sub cmd_grafico_demanda_mes_frm_gestion_inv_Click()
+
+DoCmd.Close acForm, Me.Name
+DoCmd.OpenReport "grf_demanda_mes", acViewReport
+
+End Sub
+
+Private Sub cmd_informe_prod_ubic_frm_gestion_inv_Click()
+
+DoCmd.Close acForm, Me.Name
+DoCmd.OpenReport "rpt_producto_ubicacion", acViewReport
+
+End Sub
+
+Private Sub cmd_grf_desempeno_com_frm_gestion_com_Click()
+
+DoCmd.Close acForm, Me.Name
+DoCmd.OpenReport "rpt_entregas_tiempo", acViewReport
+
+End Sub
+
+Private Sub cmd_grf_seguimiento_ord_frm_gestion_com_Click()
+
+DoCmd.Close acForm, Me.Name
+DoCmd.OpenReport "rpt_seguimiento_ordenes", acViewReport
+
+End Sub
+
+Private Sub cmd_informe_fact_ord_com_frm_gestion_com_Click()
+
+DoCmd.Close acForm, Me.Name
+DoCmd.OpenReport "rpt_ordenes_compra", acViewReport
+
+End Sub
+
+Private Sub cmd_informe_trans_inv_frm_gestion_inv_Click()
+
+DoCmd.Close acForm, Me.Name
+DoCmd.OpenReport "rpt_transacciones_producto", acViewReport
+
+End Sub
+
+Private Sub cmd_informe_valor_inv_frm_gestion_inv_Click()
+
+DoCmd.Close acForm, Me.Name
+DoCmd.OpenReport "rpt_valor_inventario", acViewReport
+
+End Sub
+
+Private Sub cmd_informe_valor_inv_frm_gestion_com_Click()
+
+DoCmd.OpenForm "frm_recepccion_ordenes_compra"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_informe_var_inv_frm_gestion_inv_Click()
+
+DoCmd.Close acForm, Me.Name
+DoCmd.OpenReport "rpt_variacion_inventario", acViewReport
+
+End Sub
+
+Private Sub cmd_inicio_frm_gestion_inv_Click()
+
+DoCmd.OpenForm "frm_menu_principal"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_inicio_frm_gestion_com_Click()
+
+DoCmd.OpenForm "frm_menu_principal"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_transacciones_frm_gestion_inv_Click()
+
+DoCmd.OpenForm "frm_transacciones_inv"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+
+Private Sub cmd_ordens_compra_frm_gestion_com_Click()
+
+DoCmd.OpenForm "frm_ordenes_compra"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_recepcion_producto_frm_gestion_com_Click()
+
+DoCmd.OpenForm "frm_recepccion_ordenes_compra"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub Form_Load()
+
+Select Case nivel_acceso_usuario
+
+    Case "administrador":
+        Me.cmd_ordens_compra_frm_gestion_com.Enabled = True
+        Me.cmd_recepcion_producto_frm_gestion_com.Enabled = True
+        
+    Case "avanzado":
+        Me.cmd_ordens_compra_frm_gestion_com.Enabled = True
+        Me.cmd_recepcion_producto_frm_gestion_com.Enabled = True
+        
+    Case "final":
+        Me.cmd_ordens_compra_frm_gestion_com.Enabled = False
+        Me.cmd_recepcion_producto_frm_gestion_com.Enabled = False
+        
+End Select
+
+End Sub
+
+Option Compare Database
+Dim rst As DAO.Recordset
+Dim db As DAO.Database
+
+Private Sub cmb_estado_entrega_frm_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+    KeyAscii = 0
+
+End Sub
+
+Private Sub cmb_producto_frm_ord_compra_Click()
+
+    Set rst = CurrentDb.OpenRecordset("SELECT precio_compra FROM productos WHERE id_producto = " & Me.cmb_producto_frm_ord_compra.Value)
+
+
+    If Not (rst.EOF And rst.BOF) Then
+        Me.txt_precio_frm_ord_compra.Value = rst!precio_compra
+        
+    End If
+
+    rst.Close
+    Set rst = Nothing
+
+End Sub
+
+Private Sub cmb_producto_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+    KeyAscii = 0
+
+End Sub
+
+Private Sub cmb_proveedor_frm_ord_compra_Click()
+
+    Me.cmb_producto_frm_ord_compra.RowSource = "SELECT id_producto, nombre_producto FROM productos WHERE id_proveedor = " & Me.cmb_proveedor_frm_ord_compra.Value
+
+    Me.cmb_producto_frm_ord_compra.Value = Null
+
+End Sub
+
+Private Sub cmb_proveedor_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+    KeyAscii = 0
+
+End Sub
+
+Private Sub cmd_anterior_frm_ord_compra_Click()
+
+On Error GoTo manejo_errores
+
+If Not rst.BOF Then
+    rst.MovePrevious
+    
+    If Not rst.BOF Then
+        Me.cmb_proveedor_frm_ord_compra = rst!id_proveedor
+        Me.cmb_producto_frm_ord_compra = rst!id_producto
+        Me.txt_cantidad_frm_ord_compra = rst!cantidad
+        Me.txt_precio_frm_ord_compra = rst!precio_compra
+        Me.txt_fecha_orden_frm_ord_compra = rst!fecha_orden
+        Me.txt_fecha_esperada_frm_ord_compra = rst!fecha_esperada
+        Me.txt_id_orden_compra_frm_ord_compra = rst!id_orden_compra
+        
+    Else
+    rst.MoveFirst
+    MsgBox "Este es el primer registro", vbInformation, "Aviso"
+    
+    End If
+    
+End If
+
+Exit Sub
+
+manejo_errores:
+
+    MsgBox "Se ha producido un error, presione el boton de ir al primer o último registro para solucionarlo", vbCritical, "MANEJO DE ERRORES"
+
+Exit Sub
+
+End Sub
+
+Private Sub cmd_eliminar_frm_ord_compra_Click()
+
+    Dim strSQL As String
+    Dim id_orden_compra As Long
+    
+    Set db = CurrentDb
+
+    id_orden_compra = Me.txt_id_orden_compra_frm_ord_compra.Value
+
+    If MsgBox("¿Desea eliminar este registro?", vbYesNo + vbQuestion, "Confirmación de eliminación") = vbYes Then
+        
+        strSQL = "DELETE FROM ordenes_compra WHERE id_orden_compra=" & id_orden_compra
+        db.Execute strSQL, dbFailOnError
+        
+        Me.Requery
+        
+    End If
+
+End Sub
+
+Private Sub cmd_guardar_frm_ord_compra_Click()
+
+On Error GoTo manejo_errores
+
+If IsNull(Me.txt_cantidad_frm_ord_compra.Value) Or IsNull(Me.txt_precio_frm_ord_compra.Value) Or IsNull(Me.txt_fecha_esperada_frm_ord_compra.Value) Or IsNull(Me.txt_fecha_orden_frm_ord_compra.Value) Or IsNull(Me.cmb_producto_frm_ord_compra.Value) Or IsNull(Me.cmb_proveedor_frm_ord_compra.Value) Then
+    
+manejo_errores:
+    
+    MsgBox "Se deben de completar todos los campos", vbExclamation, "Ordenes de compra"
+    
+    Exit Sub
+    
+End If
+
+    Me.cmd_guardar_frm_ord_compra.SetFocus
+
+    If Me.txt_fecha_esperada_frm_ord_compra.Value <= Me.txt_fecha_orden_frm_ord_compra.Value Then
+    
+        MsgBox "La fecha de entrega esperada no puede ser anterior a la fecha de la orden", vbExclamation, "AVISO"
+        
+        Exit Sub
+        
+    End If
+
+    Set db = CurrentDb
+
+    Set rst = db.OpenRecordset("ordenes_compra", dbOpenDynaset, dbAppendOnly)
+
+    rst.AddNew
+
+    rst("id_proveedor").Value = Me.cmb_proveedor_frm_ord_compra.Value
+    rst("id_producto").Value = Me.cmb_producto_frm_ord_compra.Value
+    rst("cantidad").Value = Me.txt_cantidad_frm_ord_compra.Value
+    rst("precio_compra").Value = Me.txt_precio_frm_ord_compra.Value
+    rst("fecha_orden").Value = Me.txt_fecha_orden_frm_ord_compra.Value
+    rst("fecha_esperada").Value = Me.txt_fecha_esperada_frm_ord_compra.Value
+    rst("estado_entrega").Value = "Pendiente"
+
+    rst.Update
+
+    MsgBox "Registro guardado correctamente. El estado de entrega es: Pendiente", vbInformation
+
+End Sub
+
+Private Sub cmd_inicio_frm_ord_compra_Click()
+
+    DoCmd.OpenForm "frm_menu_gestion_compras"
+    DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_nuevo_frm_ord_compra_Click()
+
+    Me.cmb_proveedor_frm_ord_compra.Value = ""
+    Me.cmb_producto_frm_ord_compra.Value = ""
+    Me.txt_cantidad_frm_ord_compra.Value = ""
+    Me.txt_precio_frm_ord_compra.Value = ""
+    Me.txt_fecha_orden_frm_ord_compra.Value = ""
+    Me.txt_fecha_esperada_frm_ord_compra.Value = ""
+    Me.txt_id_orden_compra_frm_ord_compra.Value = ""
+
+
+End Sub
+
+Private Sub cmd_primero_frm_ord_compra_Click()
+
+    Set db = CurrentDb
+    
+    Set rst = db.OpenRecordset("ordenes_compra", dbOpenDynaset)
+    
+    
+    rst.MoveFirst
+            Me.cmb_proveedor_frm_ord_compra = rst!id_proveedor
+            Me.cmb_producto_frm_ord_compra = rst!id_producto
+            Me.txt_cantidad_frm_ord_compra = rst!cantidad
+            Me.txt_precio_frm_ord_compra = rst!precio_compra
+            Me.txt_fecha_orden_frm_ord_compra = rst!fecha_orden
+            Me.txt_fecha_esperada_frm_ord_compra = rst!fecha_esperada
+            Me.txt_id_orden_compra_frm_ord_compra = rst!id_orden_compra
+
+End Sub
+
+Private Sub cmd_siguiente_frm_ord_compra_Click()
+
+On Error GoTo manejo_errores
+
+If Not rst.EOF Then
+    rst.MoveNext
+    
+    If Not rst.EOF Then
+        Me.cmb_proveedor_frm_ord_compra = rst!id_proveedor
+        Me.cmb_producto_frm_ord_compra = rst!id_producto
+        Me.txt_cantidad_frm_ord_compra = rst!cantidad
+        Me.txt_precio_frm_ord_compra = rst!precio_compra
+        Me.txt_fecha_orden_frm_ord_compra = rst!fecha_orden
+        Me.txt_fecha_esperada_frm_ord_compra = rst!fecha_esperada
+        Me.txt_id_orden_compra_frm_ord_compra = rst!id_orden_compra
+    
+    Else
+    rst.MoveLast
+    MsgBox "Este es el ultimo registro", vbInformation, "Aviso"
+    End If
+
+End If
+
+Exit Sub
+
+manejo_errores:
+
+    MsgBox "Se ha producido un error, presione el boton de ir al primer o último registro para solucionarlo", vbCritical, "MANEJO DE ERRORES"
+
+Exit Sub
+
+End Sub
+
+Private Sub cmd_ultimo_frm_ord_compra_Click()
+
+    Set db = CurrentDb
+    
+    Set rst = db.OpenRecordset("ordenes_compra", dbOpenDynaset)
+    
+    rst.MoveLast
+            Me.cmb_proveedor_frm_ord_compra = rst!id_proveedor
+            Me.cmb_producto_frm_ord_compra = rst!id_producto
+            Me.txt_cantidad_frm_ord_compra = rst!cantidad
+            Me.txt_precio_frm_ord_compra = rst!precio_compra
+            Me.txt_fecha_orden_frm_ord_compra = rst!fecha_orden
+            Me.txt_fecha_esperada_frm_ord_compra = rst!fecha_esperada
+            Me.txt_id_orden_compra_frm_ord_compra = rst!id_orden_compra
+
+End Sub
+
+Private Sub Form_Load()
+
+    Set rst = CurrentDb.OpenRecordset("ordenes_compra", dbOpenDynaset)
+    
+        rst.MoveFirst
+    
+            Me.cmb_proveedor_frm_ord_compra = rst!id_proveedor
+            Me.cmb_producto_frm_ord_compra = rst!id_producto
+            Me.txt_cantidad_frm_ord_compra = rst!cantidad
+            Me.txt_precio_frm_ord_compra = rst!precio_compra
+            Me.txt_fecha_orden_frm_ord_compra = rst!fecha_orden
+            Me.txt_fecha_esperada_frm_ord_compra = rst!fecha_esperada
+            Me.txt_id_orden_compra_frm_ord_compra = rst!id_orden_compra
+            
+            Me.txt_id_orden_compra_frm_ord_compra.Visible = False
+            Me.txt_precio_frm_ord_compra.Enabled = False
+            
+            Me.txt_fecha_orden_frm_ord_compra.Value = Now()
+
+    Me.Refresh
+
+End Sub
+
+
+
+Private Sub txt_cantidad_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+If Not IsNumeric(Chr(KeyAscii)) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir números en este campo", vbExclamation, "Gestión de usuarios"
+End If
+
+End Sub
+
+Private Sub txt_fecha_esperada_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+    KeyAscii = 0
+
+End Sub
+
+Private Sub txt_fecha_orden_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+    KeyAscii = 0
+
+End Sub
+
+Private Sub txt_precio_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+If Not IsNumeric(Chr(KeyAscii)) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir números en este campo", vbExclamation, "Gestión de usuarios"
+End If
+
+End Sub
+
+Option Compare Database
+Dim rst As DAO.Recordset
+Dim db As DAO.Database
+
+Private Sub cmb_estado_entrega_frm_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+    KeyAscii = 0
+
+End Sub
+
+Private Sub cmb_producto_frm_ord_compra_Click()
+
+    Set rst = CurrentDb.OpenRecordset("SELECT precio_compra FROM productos WHERE id_producto = " & Me.cmb_producto_frm_ord_compra.Value)
+
+
+    If Not (rst.EOF And rst.BOF) Then
+        Me.txt_precio_frm_ord_compra.Value = rst!precio_compra
+        
+    End If
+
+    rst.Close
+    Set rst = Nothing
+
+End Sub
+
+Private Sub cmb_producto_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+    KeyAscii = 0
+
+End Sub
+
+Private Sub cmb_proveedor_frm_ord_compra_Click()
+
+    Me.cmb_producto_frm_ord_compra.RowSource = "SELECT id_producto, nombre_producto FROM productos WHERE id_proveedor = " & Me.cmb_proveedor_frm_ord_compra.Value
+
+    Me.cmb_producto_frm_ord_compra.Value = Null
+
+End Sub
+
+Private Sub cmb_proveedor_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+    KeyAscii = 0
+
+End Sub
+
+Private Sub cmd_anterior_frm_ord_compra_Click()
+
+On Error GoTo manejo_errores
+
+If Not rst.BOF Then
+    rst.MovePrevious
+    
+    If Not rst.BOF Then
+        Me.cmb_proveedor_frm_ord_compra = rst!id_proveedor
+        Me.cmb_producto_frm_ord_compra = rst!id_producto
+        Me.txt_cantidad_frm_ord_compra = rst!cantidad
+        Me.txt_precio_frm_ord_compra = rst!precio_compra
+        Me.txt_fecha_orden_frm_ord_compra = rst!fecha_orden
+        Me.txt_fecha_esperada_frm_ord_compra = rst!fecha_esperada
+        Me.txt_estado_entrega_frm_frm_ord_compra = rst!estado_entrega
+        Me.txt_id_orden_compra_frm_ord_compra = rst!id_orden_compra
+        Me.txt_fecha_recep_orden_frm_ord_compra = rst!fecha_recepcion
+        
+    Else
+    rst.MoveFirst
+    MsgBox "Este es el primer registro", vbInformation, "Aviso"
+    
+    End If
+    
+End If
+
+Exit Sub
+
+manejo_errores:
+
+    MsgBox "Se ha producido un error, presione el boton de ir al primer o último registro para solucionarlo", vbCritical, "MANEJO DE ERRORES"
+    
+Exit Sub
+
+End Sub
+
+Private Sub cmd_guardar_frm_ord_compra_Click()
+
+    Me.cmd_guardar_frm_ord_compra.SetFocus
+
+    If Me.txt_fecha_esperada_frm_ord_compra.Value <= Me.txt_fecha_orden_frm_ord_compra.Value Then
+    
+        MsgBox "La fecha de entrega esperada no puede ser anterior a la fecha de la orden", vbExclamation, "AVISO"
+        
+        Exit Sub
+        
+    End If
+
+    Set db = CurrentDb
+
+    Set rst = db.OpenRecordset("ordenes_compra", dbOpenDynaset, dbAppendOnly)
+
+    rst.AddNew
+
+    rst("id_proveedor").Value = Me.cmb_proveedor_frm_ord_compra.Value
+    rst("id_producto").Value = Me.cmb_producto_frm_ord_compra.Value
+    rst("cantidad").Value = Me.txt_cantidad_frm_ord_compra.Value
+    rst("precio_compra").Value = Me.txt_precio_frm_ord_compra.Value
+    rst("fecha_orden").Value = Me.txt_fecha_orden_frm_ord_compra.Value
+    rst("fecha_esperada").Value = Me.txt_fecha_esperada_frm_ord_compra.Value
+    rst("estado_entrega").Value = Me.cmb_estado_entrega_frm_frm_ord_compra.Value
+
+    rst.Update
+
+    MsgBox "Registro guardado correctamente", vbInformation
+
+End Sub
+
+Private Sub cmd_nuevo_frm_ord_compra_Click()
+
+    Me.cmb_proveedor_frm_ord_compra.Value = ""
+    Me.cmb_producto_frm_ord_compra.Value = ""
+    Me.txt_cantidad_frm_ord_compra.Value = ""
+    Me.txt_precio_frm_ord_compra.Value = ""
+    Me.txt_fecha_orden_frm_ord_compra.Value = ""
+    Me.txt_fecha_esperada_frm_ord_compra.Value = ""
+    Me.cmb_estado_entrega_frm_frm_ord_compra.Value = ""
+    Me.txt_id_orden_compra_frm_ord_compra.Value = ""
+
+
+End Sub
+
+Private Sub cmd_confirmacion_ord_compra_frm_recep_ord_compra_Click()
+
+On Error GoTo manejo_errores
+
+If IsNull(Me.txt_fecha_recep_orden_frm_ord_compra.Value) Or IsNull(Me.txt_fecha_esperada_frm_ord_compra.Value) Or IsNull(Me.txt_fecha_orden_frm_ord_compra.Value) Or IsNull(Me.txt_estado_entrega_frm_frm_ord_compra.Value) Or IsNull(Me.txt_precio_frm_ord_compra.Value) Or IsNull(Me.txt_cantidad_frm_ord_compra.Value) Or IsNull(Me.cmb_producto_frm_ord_compra.Value) Or IsNull(Me.cmb_proveedor_frm_ord_compra.Value) Then
+    
+manejo_errores:
+    
+    MsgBox "Se deben de completar todos los campos", vbExclamation, "Recepción de ordenes"
+    
+    Exit Sub
+    
+End If
+
+    Dim strSQL As String
+    Dim cantidad_ordenada As Integer
+    Dim idProducto As Integer
+    Dim idOrdenCompra As Integer
+    
+    Set db = CurrentDb
+    
+    If IsNull(Me.txt_fecha_recep_orden_frm_ord_compra.Value) Or Me.txt_fecha_recep_orden_frm_ord_compra.Value = "" Then
+        MsgBox "Debe ingresar la fecha de entrega antes de confirmar la recepción", vbExclamation, "AVISO"
+        
+        Exit Sub
+    
+    End If
+
+    If Me.txt_fecha_recep_orden_frm_ord_compra.Value <= Me.txt_fecha_orden_frm_ord_compra.Value Then
+        MsgBox "La fecha de entrega no puede ser anterior a la fecha de la orden", vbExclamation, "AVISO"
+        
+        Exit Sub
+    
+    End If
+
+    idOrdenCompra = Me.txt_id_orden_compra_frm_ord_compra.Value
+    idProducto = Me.cmb_producto_frm_ord_compra.Value
+    cantidad_ordenada = Me.txt_cantidad_frm_ord_compra.Value
+    
+    strSQL = "UPDATE productos SET cantidad_disponible = cantidad_disponible + " & cantidad_ordenada & " WHERE id_producto = " & idProducto
+    db.Execute strSQL, dbFailOnError
+    
+    strSQL = "UPDATE ordenes_compra SET estado_entrega = 'Recibido', fecha_recepcion = #" & Format(Me.txt_fecha_recep_orden_frm_ord_compra.Value, "dd/mm/yyyy") & "# WHERE id_orden_compra = " & idOrdenCompra
+    db.Execute strSQL, dbFailOnError
+    
+    Me.txt_estado_entrega_frm_frm_ord_compra.Value = "Recibido"
+
+    MsgBox "Recepción de la orden confirmada con éxito", vbInformation
+
+    DoCmd.Requery
+
+End Sub
+
+Private Sub cmd_inicio_frm_ord_compra_Click()
+
+    DoCmd.OpenForm "frm_menu_gestion_compras"
+    DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_primero_frm_ord_compra_Click()
+
+    Set db = CurrentDb
+    
+    Set rst = db.OpenRecordset("ordenes_compra", dbOpenDynaset)
+    
+    
+    rst.MoveFirst
+            Me.cmb_proveedor_frm_ord_compra = rst!id_proveedor
+            Me.cmb_producto_frm_ord_compra = rst!id_producto
+            Me.txt_cantidad_frm_ord_compra = rst!cantidad
+            Me.txt_precio_frm_ord_compra = rst!precio_compra
+            Me.txt_fecha_orden_frm_ord_compra = rst!fecha_orden
+            Me.txt_fecha_esperada_frm_ord_compra = rst!fecha_esperada
+            Me.txt_estado_entrega_frm_frm_ord_compra = rst!estado_entrega
+            Me.txt_id_orden_compra_frm_ord_compra = rst!id_orden_compra
+            Me.txt_fecha_recep_orden_frm_ord_compra = rst!fecha_recepcion
+
+End Sub
+
+Private Sub cmd_siguiente_frm_ord_compra_Click()
+
+On Error GoTo manejo_errores
+
+If Not rst.EOF Then
+    rst.MoveNext
+    
+    If Not rst.EOF Then
+        Me.cmb_proveedor_frm_ord_compra = rst!id_proveedor
+        Me.cmb_producto_frm_ord_compra = rst!id_producto
+        Me.txt_cantidad_frm_ord_compra = rst!cantidad
+        Me.txt_precio_frm_ord_compra = rst!precio_compra
+        Me.txt_fecha_orden_frm_ord_compra = rst!fecha_orden
+        Me.txt_fecha_esperada_frm_ord_compra = rst!fecha_esperada
+        Me.txt_estado_entrega_frm_frm_ord_compra = rst!estado_entrega
+        Me.txt_id_orden_compra_frm_ord_compra = rst!id_orden_compra
+        Me.txt_fecha_recep_orden_frm_ord_compra = rst!fecha_recepcion
+        
+    
+    Else
+    rst.MoveLast
+    MsgBox "Este es el ultimo registro", vbInformation, "Aviso"
+    End If
+
+End If
+    
+Exit Sub
+
+manejo_errores:
+
+    MsgBox "Se ha producido un error, presione el boton de ir al primer o último registro para solucionarlo", vbCritical, "MANEJO DE ERRORES"
+
+Exit Sub
+
+End Sub
+
+Private Sub cmd_ultimo_frm_ord_compra_Click()
+
+    Set db = CurrentDb
+    
+    Set rst = db.OpenRecordset("ordenes_compra", dbOpenDynaset)
+    
+    rst.MoveLast
+            Me.cmb_proveedor_frm_ord_compra = rst!id_proveedor
+            Me.cmb_producto_frm_ord_compra = rst!id_producto
+            Me.txt_cantidad_frm_ord_compra = rst!cantidad
+            Me.txt_precio_frm_ord_compra = rst!precio_compra
+            Me.txt_fecha_orden_frm_ord_compra = rst!fecha_orden
+            Me.txt_fecha_esperada_frm_ord_compra = rst!fecha_esperada
+            Me.txt_estado_entrega_frm_frm_ord_compra = rst!estado_entrega
+            Me.txt_id_orden_compra_frm_ord_compra = rst!id_orden_compra
+            Me.txt_fecha_recep_orden_frm_ord_compra = rst!fecha_recepcion
+
+End Sub
+
+
+Private Sub Form_Load()
+
+    Set db = CurrentDb
+
+    Me.txt_estado_entrega_frm_frm_ord_compra.Value = "Pendiente"
+    
+    Set rst = db.OpenRecordset("ordenes_compra", dbOpenDynaset)
+    
+        rst.MoveFirst
+    
+            Me.cmb_proveedor_frm_ord_compra = rst!id_proveedor
+            Me.cmb_producto_frm_ord_compra = rst!id_producto
+            Me.txt_cantidad_frm_ord_compra = rst!cantidad
+            Me.txt_precio_frm_ord_compra = rst!precio_compra
+            Me.txt_fecha_orden_frm_ord_compra = rst!fecha_orden
+            Me.txt_fecha_esperada_frm_ord_compra = rst!fecha_esperada
+            Me.txt_estado_entrega_frm_frm_ord_compra = rst!estado_entrega
+            Me.txt_id_orden_compra_frm_ord_compra = rst!id_orden_compra
+            Me.txt_fecha_recep_orden_frm_ord_compra = rst!fecha_recepcion
+            
+            Me.txt_id_orden_compra_frm_ord_compra.Visible = False
+            
+            Me.cmb_proveedor_frm_ord_compra.Enabled = False
+            Me.cmb_producto_frm_ord_compra.Enabled = False
+            Me.txt_cantidad_frm_ord_compra.Enabled = False
+            Me.txt_precio_frm_ord_compra.Enabled = False
+            Me.txt_fecha_orden_frm_ord_compra.Enabled = False
+            Me.txt_fecha_esperada_frm_ord_compra.Enabled = False
+            Me.txt_estado_entrega_frm_frm_ord_compra.Enabled = False
+            Me.txt_id_orden_compra_frm_ord_compra.Enabled = True
+            
+            Me.txt_fecha_orden_frm_ord_compra.Value = Now()
+
+    Me.Refresh
+
+End Sub
+
+
+Private Sub txt_cantidad_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+If Not IsNumeric(Chr(KeyAscii)) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir números en este campo", vbExclamation, "Gestión de usuarios"
+End If
+
+End Sub
+
+Private Sub txt_estado_entrega_frm_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+If Not (KeyAscii >= Asc("A") And KeyAscii <= Asc("Z")) And Not (KeyAscii >= Asc("a") And KeyAscii <= Asc("z")) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir letras en este campo", vbExclamation, "Ingreso de usuarios"
+End If
+
+End Sub
+
+Private Sub txt_fecha_esperada_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+    KeyAscii = 0
+
+End Sub
+
+Private Sub txt_fecha_orden_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+    KeyAscii = 0
+
+End Sub
+
+Private Sub txt_fecha_recep_orden_frm_ord_compra_KeyPress(KeyAscii As Integer)
+    
+    KeyAscii = 0
+    
+End Sub
+
+Private Sub txt_precio_frm_ord_compra_KeyPress(KeyAscii As Integer)
+
+If Not IsNumeric(Chr(KeyAscii)) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir números en este campo", vbExclamation, "Gestión de usuarios"
+End If
+
+End Sub
+
+Option Compare Database
+Dim rst As DAO.Recordset
+Dim db As DAO.Database
+
+Private Sub cmb_producto_frm_trans_inv_KeyPress(KeyAscii As Integer)
+
+    KeyAscii = 0
+
+End Sub
+
+Private Sub cmb_tipo_frm_trans_inv_KeyPress(KeyAscii As Integer)
+
+    KeyAscii = 0
+
+End Sub
+
+Private Sub cmd_anterior_frm_trans_inv_Click()
+
+On Error GoTo manejo_errores
+
+If Not rst.BOF Then
+    rst.MovePrevious
+    
+    If Not rst.BOF Then
+        Me.cmb_producto_frm_trans_inv = rst!id_producto
+        Me.cmb_tipo_frm_trans_inv = rst!tipo
+        Me.txt_cantidad_frm_trans_inv = rst!cantidad
+        Me.txt_fecha_frm_trans_inv = rst!fecha
+        Me.txt_id_trans_frm_trans_inv = rst!id_transaccion
+
+    Else
+    rst.MoveFirst
+    MsgBox "Este es el primer registro", vbInformation, "Aviso"
+    
+    End If
+    
+End If
+
+Exit Sub
+
+manejo_errores:
+
+    MsgBox "Se ha producido un error, presione el boton de ir al primer o último registro para solucionarlo", vbCritical, "MANEJO DE ERRORES"
+    
+Exit Sub
+
+End Sub
+
+Private Sub cmd_editar_frm_trans_inv_Click()
+
+Dim strSQL As String
+Dim intCantidad As Integer
+Dim strTipo As String
+Dim intIDProducto As Integer
+Dim intIDTransaccion As Integer
+Dim intCantidadDisponible As Integer
+
+If Not IsNumeric(Me.txt_cantidad_frm_trans_inv.Value) Then
+    MsgBox "Introduzca solo números en el campo de cantidad", vbInformation, "Aviso"
+    Exit Sub
+
+End If
+
+intCantidad = CInt(Me.txt_cantidad_frm_trans_inv.Value)
+
+strTipo = Me.cmb_tipo_frm_trans_inv.Value
+intIDProducto = Me.cmb_producto_frm_trans_inv.Value
+intIDTransaccion = CInt(Me.txt_id_trans_frm_trans_inv.Value)
+
+Set db = CurrentDb
+
+If strTipo = "Salida" Then
+    strSQL = "SELECT cantidad_disponible FROM productos WHERE id_producto = " & intIDProducto
+    Set rst = db.OpenRecordset(strSQL)
+    
+    If Not rst.EOF Then
+        intCantidadDisponible = rst.Fields("cantidad_disponible").Value
+        
+        If intCantidad > intCantidadDisponible Then
+            MsgBox "No hay suficiente inventario para la cantidad de salidas requerida."
+            Exit Sub
+        
+        End If
+    
+    End If
+
+End If
+
+strSQL = "UPDATE transacciones_inventario SET cantidad = " & intCantidad & ", tipo = '" & strTipo & "', id_producto = " & intIDProducto & " WHERE id_transaccion = " & intIDTransaccion
+
+db.Execute strSQL, dbFailOnError
+
+Set rst = Nothing
+
+Set db = Nothing
+
+End Sub
+
+
+Private Sub cmd_eliminar_frm_trans_inv_Click()
+
+    Dim strSQL As String
+    Dim id_transaccion As Long
+
+    id_transaccion = Me.txt_id_trans_frm_trans_inv.Value
+
+    If MsgBox("¿Desea eliminar este registro?", vbYesNo + vbQuestion, "Confirmación de eliminación") = vbYes Then
+        
+        strSQL = "DELETE FROM transacciones_inventario WHERE id_transaccion=" & id_transaccion
+        CurrentDb.Execute strSQL, dbFailOnError
+        
+        Me.Requery
+        
+    End If
+
+End Sub
+
+Private Sub cmd_guardar_frm_trans_inv_Click()
+
+
+On Error GoTo manejo_errores
+
+If IsNull(Me.cmb_producto_frm_trans_inv.Value) Or IsNull(Me.cmb_tipo_frm_trans_inv.Value) Or IsNull(Me.txt_cantidad_frm_trans_inv.Value) Then
+    
+manejo_errores:
+    
+    MsgBox "Se deben de completar todos los campos", vbExclamation, "Transacciones de inventario"
+
+    Exit Sub
+End If
+
+    Dim db As DAO.Database
+    Dim qdf As DAO.QueryDef
+    Dim strSQL As String
+    Dim intCantidad As Integer
+    Dim strTipo As String
+    Dim intCantidadDisponible As Integer
+    
+    If Not IsNumeric(Me.txt_cantidad_frm_trans_inv.Value) Then
+        MsgBox "Introduzca solo números en el campo de cantidad", vbInformation, "Aviso"
+        Exit Sub
+    End If
+
+    intCantidad = CInt(Me.txt_cantidad_frm_trans_inv.Value)
+    strTipo = Me.cmb_tipo_frm_trans_inv.Value
+    intIDProducto = Me.cmb_producto_frm_trans_inv.Value
+
+    Set db = CurrentDb
+    
+    If strTipo = "Salida" Then
+        strSQL = "SELECT cantidad_disponible FROM productos WHERE id_producto = " & intIDProducto
+        Set rst = db.OpenRecordset(strSQL)
+        
+        If Not rst.EOF Then
+            intCantidadDisponible = rst.Fields("cantidad_disponible").Value
+            
+            If intCantidad > intCantidadDisponible Then
+                MsgBox "No hay suficiente inventario para la cantidad de salidas requerida", vbCritical, "Aviso"
+                Exit Sub
+            
+            End If
+        
+        End If
+    
+    End If
+
+    ' Crea la consulta SQL
+    If strTipo = "Entrada" Then
+        strSQL = "UPDATE productos SET cantidad_disponible = cantidad_disponible + " & intCantidad & " WHERE id_producto = " & intIDProducto
+    
+    ElseIf strTipo = "Salida" Then
+        strSQL = "UPDATE productos SET cantidad_disponible = cantidad_disponible - " & intCantidad & " WHERE id_producto = " & intIDProducto
+    
+    End If
+
+    db.Execute strSQL, dbFailOnError
+    
+    Set rst = db.OpenRecordset("transacciones_inventario", dbOpenTable, dbAppendOnly)
+    
+    rst.AddNew
+    
+    rst("id_producto").Value = Me.cmb_producto_frm_trans_inv.Value
+    rst("tipo").Value = Me.cmb_tipo_frm_trans_inv.Value
+    rst("cantidad").Value = Me.txt_cantidad_frm_trans_inv.Value
+    rst("fecha").Value = Me.txt_fecha_frm_trans_inv.Value
+    
+
+    rst.Update
+
+    rst.Close
+    db.Close
+
+    Set rst = Nothing
+    Set db = Nothing
+    
+    MsgBox "Registro guardado correctamente", vbInformation
+
+End Sub
+
+Private Sub cmd_inicio_frm_trans_inv_Click()
+
+    DoCmd.OpenForm "frm_menu_gestion_inventario"
+    DoCmd.Close acForm, Me.Name
+
+End Sub
+
+
+Private Sub cmd_nuevo_frm_trans_inv_Click()
+
+    Me.cmb_producto_frm_trans_inv.Value = ""
+    Me.cmb_tipo_frm_trans_inv.Value = ""
+    Me.txt_cantidad_frm_trans_inv.Value = ""
+    Me.txt_fecha_frm_trans_inv.Value = ""
+    Me.txt_id_trans_frm_trans_inv = ""
+    
+    Me.txt_fecha_frm_trans_inv.Value = Now()
+
+End Sub
+
+Private Sub cmd_primero_frm_trans_inv_Click()
+
+    Set db = CurrentDb
+    
+    Set rst = db.OpenRecordset("transacciones_inventario", dbOpenDynaset)
+    
+    
+    rst.MoveFirst
+            Me.cmb_producto_frm_trans_inv = rst!id_producto
+            Me.cmb_tipo_frm_trans_inv = rst!tipo
+            Me.txt_cantidad_frm_trans_inv = rst!cantidad
+            Me.txt_fecha_frm_trans_inv = rst!fecha
+            Me.txt_id_trans_frm_trans_inv = rst!id_transaccion
+
+
+End Sub
+
+Private Sub cmd_siguiente_frm_trans_inv_Click()
+
+On Error GoTo manejo_errores
+
+If Not rst.EOF Then
+    rst.MoveNext
+    
+    If Not rst.EOF Then
+        Me.cmb_producto_frm_trans_inv = rst!id_producto
+        Me.cmb_tipo_frm_trans_inv = rst!tipo
+        Me.txt_cantidad_frm_trans_inv = rst!cantidad
+        Me.txt_fecha_frm_trans_inv = rst!fecha
+        Me.txt_id_trans_frm_trans_inv = rst!id_transaccion
+    
+    Else
+    rst.MoveLast
+    MsgBox "Este es el ultimo registro", vbInformation, "Aviso"
+    End If
+
+End If
+
+Exit Sub
+
+manejo_errores:
+
+    MsgBox "Se ha producido un error, presione el boton de ir al primer o último registro para solucionarlo", vbCritical, "MANEJO DE ERRORES"
+    
+Exit Sub
+
+End Sub
+
+Private Sub cmd_ultimo_frm_trans_inv_Click()
+
+    Set db = CurrentDb
+    
+    Set rst = db.OpenRecordset("transacciones_inventario", dbOpenDynaset)
+    
+    rst.MoveLast
+            Me.cmb_producto_frm_trans_inv = rst!id_producto
+            Me.cmb_tipo_frm_trans_inv = rst!tipo
+            Me.txt_cantidad_frm_trans_inv = rst!cantidad
+            Me.txt_fecha_frm_trans_inv = rst!fecha
+            Me.txt_id_trans_frm_trans_inv = rst!id_transaccion
+
+End Sub
+
+Private Sub Form_Load()
+
+    Set rst = CurrentDb.OpenRecordset("transacciones_inventario", dbOpenDynaset)
+    
+        rst.MoveFirst
+    
+            Me.cmb_producto_frm_trans_inv = rst!id_producto
+            Me.cmb_tipo_frm_trans_inv = rst!tipo
+            Me.txt_cantidad_frm_trans_inv = rst!cantidad
+            Me.txt_fecha_frm_trans_inv = rst!fecha
+            Me.txt_id_trans_frm_trans_inv = rst!id_transaccion
+        
+            Me.txt_id_trans_frm_trans_inv.Visible = False
+            
+            Me.txt_fecha_frm_trans_inv.Value = Now()
+
+        Me.Refresh
+    
+        Select Case nivel_acceso_usuario
+    
+            Case "administrador":
+                Me.cmd_eliminar_frm_trans_inv.Enabled = True
+                Me.cmd_editar_frm_trans_inv.Enabled = True
+    
+            Case "avanzado":
+                Me.cmd_eliminar_frm_trans_inv.Enabled = True
+                Me.cmd_editar_frm_trans_inv.Enabled = False
+    
+            Case "final":
+                Me.cmd_eliminar_frm_trans_inv.Enabled = False
+                Me.cmd_editar_frm_trans_inv.Enabled = False
+    
+        End Select
+
+End Sub
+
+Private Sub txt_cantidad_frm_trans_inv_KeyPress(KeyAscii As Integer)
+
+If Not IsNumeric(Chr(KeyAscii)) And KeyAscii <> 8 Then
+    KeyAscii = 0
+    MsgBox "Sólo puede introducir números en este campo", vbExclamation, "Gestión de usuarios"
+End If
+
+End Sub
