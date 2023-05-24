@@ -178,3 +178,81 @@ If Not (KeyAscii >= Asc("A") And KeyAscii <= Asc("Z")) And Not (KeyAscii >= Asc(
 End If
 
 End Sub
+
+Option Compare Database
+
+Private Sub cmd_cerrar_sesion_frm_menu_principal_Click()
+
+DoCmd.OpenForm "frm_usuarios"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_compras_frm_menu_principal_Click()
+
+DoCmd.OpenForm "frm_menu_gestion_compras"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_inventario_frm_menu_principal_Click()
+
+DoCmd.OpenForm "frm_menu_gestion_inventario"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_registro_productos_frm_menu_principal_Click()
+
+DoCmd.OpenForm "frm_registro_producto"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+Private Sub cmd_registro_proveedor_frm_menu_principal_Click()
+
+DoCmd.OpenForm "frm_registro_proveedores"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+
+Private Sub cmd_regsitro_usuarios_frm_menu_principal_Click()
+
+DoCmd.OpenForm "frm_registro_usuario"
+DoCmd.Close acForm, Me.Name
+
+End Sub
+
+
+Private Sub Form_Load()
+
+Me.Refresh
+
+Select Case nivel_acceso_usuario
+
+    Case "administrador":
+        Me.cmd_inventario_frm_menu_principal.Enabled = True
+        Me.cmd_compras_frm_menu_principal.Enabled = True
+        Me.cmd_registro_proveedor_frm_menu_principal.Enabled = True
+        Me.cmd_registro_productos_frm_menu_principal.Enabled = True
+        Me.cmd_regsitro_usuarios_frm_menu_principal.Enabled = True
+
+    Case "avanzado":
+        Me.cmd_inventario_frm_menu_principal.Enabled = True
+        Me.cmd_compras_frm_menu_principal.Enabled = True
+        Me.cmd_registro_proveedor_frm_menu_principal.Enabled = False
+        Me.cmd_registro_productos_frm_menu_principal.Enabled = False
+        Me.cmd_regsitro_usuarios_frm_menu_principal.Enabled = False
+        
+    Case "final":
+        Me.cmd_inventario_frm_menu_principal.Enabled = True
+        Me.cmd_compras_frm_menu_principal.Enabled = True
+        Me.cmd_registro_proveedor_frm_menu_principal.Enabled = False
+        Me.cmd_registro_productos_frm_menu_principal.Enabled = False
+        Me.cmd_regsitro_usuarios_frm_menu_principal.Enabled = False
+        
+End Select
+    
+End Sub
+
